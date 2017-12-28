@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+                <style>
+                    ul,li{
+                        list-style-type: none;
+                        margin:0;
+                        padding:0
+                    }
+                li{
+                    display: block;
+                    padding:10px 20px;
+                    background:#aaa;
+                    color:#fff;
+                    border-radius: 5px;
+                    margin-top:20px;
+                    text-align: center;
+                }
+                
+                    </style>
+                <title>js call native api</title>
+            
+                
+    </head>
+    <body>
+        <ul>
+            
+            <li id="J_GotoBaidu">跳转至百度</li>
+            <li id="J_NativeToJs">NativeToJs获取uid</li>
+            <li id="J_HideTitle">hideTitle</li>
+            <li id="J_ShowTitle">showTitle</li>
+            <li id="J_PopPage">popPage1</li>
+            <li id="J_OpenNewPage">openNewPage</li>
+            <li id="J_PopPage2">popPage2</li>
+            <li id="J_Resume">resume监听</li>
+            <li id="J_Pause">pause监听</li>
+            <li id="J_UA">自定义UA</li>
+            <li id="J_BridgeScheme">自定义协议拦截</li>
+            
+            
+        </ul>
+        <div id="temp"></div>
+        <div id="temp2"></div>
+        
+        <script>
+
+
+        
+        var JSBridge = {
+            eventMap: {},
+            uid: 0,
+            postNative: function(nativeMethod){
+                try{
+                    window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, url: url });
+                } catch(e){
+                    console.log(e);
+                    console.error("JSBridge为生效");
+                }
+                
+            },
+            getDeviceId: function(callback){ //获取设备id
+                var self = this;
+                
+                var name = "getDeviceId";
+                var uid = this.uid;
+                
+                this.eventMap[name + uid] = function(data){
+                    callback && callback(data);
+                    delete self.eventMap[name + uid];
+                };
+                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, callback: name + uid });
+                
+                this.uid = uid + 1;
+            },
+            
+            openPage: function(url){ //打开新的webview
+                var name = "openPage";
+                
+                try{
+                    window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, url: url });
+                }catch(e){
+                    console.error(e);
+                    location.href = url;
+                }
+                
+            },
+            
+            popPage: function(n){ //关闭页面
+                var name = "popPage";
+                if(!n) { n = 1 }
+                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, step: n + ""});
+            },
+            
+            hideTitle: function(){ //隐藏native title bar
+                var name = "hideTitle";
+                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name});
+            },
+            
+            showTitle: function(){ //显示native title bar
+                var name = "showTitle";
+                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name});
+            },
+            
+            resume: function(callback){ //resume
+                var self = this;
+                
+                var name = "resume";
+                var uid = this.uid;
+                
+                this.eventMap[name + uid] = function(data){
+                    callback && callback(data);
+                    delete self.eventMap[name + uid];
+                };
+                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, callback: name + uid });
+                
+                this.uid = uid + 1;
+            },
+            
+            pause: function(callback){ //pause
+                var self = this;
+                
+                var name = "pause";
+                var uid = this.uid;
+                
+                this.eventMap[name + uid] = function(data){
+                    callback && callback(data);
+                    delete self.eventMap[name + uid];
+                };
+                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, callback: name + uid });
+                
+                this.uid = uid + 1;
+            }
+            
+            
+            
+        };
+        
+        var J_GotoBaidu = document.getElementById("J_GotoBaidu");
+        J_GotoBaidu.onclick = function(){
+            
+            JSBridge.openPage("https://www.baidu.com");
+            
+        };
+        
+        var J_NativeToJs = document.getElementById("J_NativeToJs");
+        J_NativeToJs.onclick = function(){
+            
+            //JSBridge.getDeviceId(function(data){
+
+            //                     document.getElementById('temp').innerHTML = data;
+
+            //                     });
+
+            alert(0);
+
+            try{
+
+                JSBridge.getUID();
+            }catch(e){
+                alert(e);
+                alert(JSON.stringify(JSBridge));
+            }
+
+                                 
+        };
+        
+        var J_HideTitle = document.getElementById("J_HideTitle");
+        J_HideTitle.onclick = function(){
+            JSBridge.hideTitle();
+        };
+        var J_ShowTitle = document.getElementById("J_ShowTitle");
+        J_ShowTitle.onclick = function(){
+            JSBridge.showTitle();
+        };
+        var J_PopPage = document.getElementById("J_PopPage");
+        J_PopPage.onclick = function(){
+            JSBridge.popPage();
+        };
+        var J_OpenNewPage = document.getElementById("J_OpenNewPage");
+        J_OpenNewPage.onclick = function(){
+            JSBridge.openPage();
+        };
+        var J_PopPage2 = document.getElementById("J_PopPage2");
+        J_PopPage2.onclick = function(){
+            JSBridge.popPage(2);
+        };
+        
+        
+        var J_Resume = document.getElementById("J_Resume");
+        J_Resume.onclick = function(){
+            
+            JSBridge.resume(function(){
+                                 
+                                 document.getElementById('temp').innerHTML = "app 被压入前台";
+                                 
+                                 });
+                                 
+        };
+        
+        var J_Pause = document.getElementById("J_Pause");
+        J_Pause.onclick = function(){
+            
+            JSBridge.pause(function(){
+                            
+                            document.getElementById('temp2').innerHTML = "app 被压入后台";
+                            
+                            });
+                            
+        };
+        
+        var J_UA = document.getElementById("J_UA");
+        J_UA.onclick = function(){
+            
+            alert(navigator.userAgent);
+                           
+        };
+        
+        var J_BridgeScheme = document.getElementById("J_BridgeScheme");
+        J_BridgeScheme.onclick = function(){
+            
+            //ios接收到的scheme的值 始终为小写
+            location.href = "jsbridge://openPage?url=" + encodeURIComponent("https://www.baidu.com");
+            
+        };
+        
+        
+        
+            </script>
+    </body>
+</html>
