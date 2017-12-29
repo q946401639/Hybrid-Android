@@ -13,9 +13,25 @@ import android.webkit.JavascriptInterface;
 
 public class JSBridge extends Object{
 
+
+
+    public JSBridge(){
+
+    }
+
     @JavascriptInterface
-    public void getUID(){
-        System.out.println("UID: 1234567890");
+    public String getUID(){
+        return "UID: 1234567890";
+    }
+
+    @JavascriptInterface
+    public void hideTitle(){
+
+    }
+
+    @JavascriptInterface
+    public void showTitle(){
+
     }
 
 }

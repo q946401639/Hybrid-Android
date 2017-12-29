@@ -3,6 +3,7 @@ package com.fengdewang.hybrid_android;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,15 +16,24 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 public class WebViewActivity extends AppCompatActivity {
 
+    private ActionBar actionBar;
+
     private WebView customWebView;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
+
+        actionBar = getSupportActionBar();
+
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setAlpha(0);
 
         customWebView = findViewById(R.id.customWebView);
 
@@ -111,9 +121,10 @@ public class WebViewActivity extends AppCompatActivity {
                 //super.onProgressChanged(view, newProgress);
 
                 if(newProgress >= 100){
-
+                    progressBar.setAlpha(0);
                 } else {
-
+                    progressBar.setAlpha(1);
+                    progressBar.setProgress(newProgress);
                 }
 
             }
@@ -149,8 +160,7 @@ public class WebViewActivity extends AppCompatActivity {
         //参数1：Java对象名
         //参数2：Javascript对象名
         JSBridge jsbridge = new JSBridge();
-        customWebView.addJavascriptInterface(jsbridge, "JSBridge");
-
+        customWebView.addJavascriptInterface(jsbridge, "JSBridgeAndroid");
 
         customWebView.loadUrl("file:///android_asset/JSBridgeDemo.html");
         //customWebView.loadUrl("https://www.baidu.com");
@@ -195,4 +205,15 @@ public class WebViewActivity extends AppCompatActivity {
 
         customWebView.onResume();
     }
+
+    public void setTitleVisibility(Boolean show){
+
+        if(!show){
+            actionBar.hide();
+        } else {
+            actionBar.show();
+        }
+
+    }
+
 }

@@ -52,15 +52,6 @@
         var JSBridge = {
             eventMap: {},
             uid: 0,
-            postNative: function(nativeMethod){
-                try{
-                    window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, url: url });
-                } catch(e){
-                    console.log(e);
-                    console.error("JSBridge为生效");
-                }
-                
-            },
             getDeviceId: function(callback){ //获取设备id
                 var self = this;
                 
@@ -95,13 +86,13 @@
             },
             
             hideTitle: function(){ //隐藏native title bar
-                var name = "hideTitle";
-                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name});
+
+                JSBridgeAndroid.hideTitle();
             },
             
             showTitle: function(){ //显示native title bar
-                var name = "showTitle";
-                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name});
+
+                JSBridgeAndroid.showTitle();
             },
             
             resume: function(callback){ //resume
@@ -154,15 +145,13 @@
 
             //                     });
 
-            alert(0);
 
-            try{
 
-                JSBridge.getUID();
-            }catch(e){
-                alert(e);
-                alert(JSON.stringify(JSBridge));
-            }
+
+
+            var uid = JSBridgeAndroid.getUID();
+
+            alert(uid);
 
                                  
         };
