@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
@@ -37,6 +38,7 @@ public class WebViewActivity extends AppCompatActivity {
         uiHandler = new WebViewUIHandler(WebViewActivity.this);
 
         actionBar = getSupportActionBar();
+        initTitleBar();
 
         progressBar = findViewById(R.id.progressBar);
         progressBar.setAlpha(0);
@@ -95,12 +97,14 @@ public class WebViewActivity extends AppCompatActivity {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 //super.onPageStarted(view, url, favicon);
                 //todo 开始加载网页 显示loading
+                System.out.println(url);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 //super.onPageFinished(view, url);
                 //todo 网页加载结束 隐藏loading
+                System.out.println(url);
             }
 
             @Override
@@ -137,8 +141,9 @@ public class WebViewActivity extends AppCompatActivity {
 
             @Override
             public void onReceivedTitle(WebView view, String title) {
-                //super.onReceivedTitle(view, title);
+                super.onReceivedTitle(view, title);
                 //todo 设置title
+                actionBar.setTitle(title);
             }
 
             @Override
@@ -176,6 +181,7 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
+        //右下角返回按钮 先判断webview是否为可后退状态 ，是的话优先进行 history.back()
         if(keyCode == KeyEvent.KEYCODE_BACK && customWebView.canGoBack()){
 
             customWebView.goBack();
@@ -184,6 +190,20 @@ public class WebViewActivity extends AppCompatActivity {
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        //左上角按钮 直接关闭webview
+        if(item.getItemId() == android.R.id.home){
+
+            finish();
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -219,6 +239,13 @@ public class WebViewActivity extends AppCompatActivity {
         } else {
             actionBar.show();
         }
+
+    }
+
+
+    public void initTitleBar(){
+        actionBar.setDisplayHomeAsUpEnabled(true); //是否在左侧返回区域显示返回箭头，默认不显示
+        actionBar.setDisplayShowTitleEnabled(true); //是否在左侧返回区域显示左侧标题，默认显示APP名称   setTitle : 设置左侧标题的文本
 
     }
 
