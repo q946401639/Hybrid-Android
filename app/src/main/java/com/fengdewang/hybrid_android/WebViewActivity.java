@@ -3,6 +3,8 @@ package com.fengdewang.hybrid_android;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +22,8 @@ import android.widget.ProgressBar;
 
 public class WebViewActivity extends AppCompatActivity {
 
+    private Handler uiHandler;
+
     private ActionBar actionBar;
 
     private WebView customWebView;
@@ -29,6 +33,8 @@ public class WebViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
+
+        uiHandler = new WebViewUIHandler(WebViewActivity.this);
 
         actionBar = getSupportActionBar();
 
@@ -159,7 +165,7 @@ public class WebViewActivity extends AppCompatActivity {
         // 通过addJavascriptInterface()将Java对象映射到JS对象
         //参数1：Java对象名
         //参数2：Javascript对象名
-        JSBridge jsbridge = new JSBridge();
+        JSBridge jsbridge = new JSBridge(uiHandler);
         customWebView.addJavascriptInterface(jsbridge, "JSBridgeAndroid");
 
         customWebView.loadUrl("file:///android_asset/JSBridgeDemo.html");
@@ -215,5 +221,6 @@ public class WebViewActivity extends AppCompatActivity {
         }
 
     }
+
 
 }

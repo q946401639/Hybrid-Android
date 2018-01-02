@@ -1,7 +1,11 @@
 package com.fengdewang.hybrid_android;
 
 
+import android.os.Handler;
+import android.os.Message;
 import android.webkit.JavascriptInterface;
+
+
 
 
 /**
@@ -13,10 +17,19 @@ import android.webkit.JavascriptInterface;
 
 public class JSBridge extends Object{
 
-
+    private WebViewActivity webViewActivity;
+    private Handler handler;
 
     public JSBridge(){
 
+    }
+
+    public JSBridge(WebViewActivity webViewActivity){
+        this.webViewActivity = webViewActivity;
+    }
+
+    public JSBridge(Handler handler){
+        this.handler = handler;
     }
 
     @JavascriptInterface
@@ -27,10 +40,28 @@ public class JSBridge extends Object{
     @JavascriptInterface
     public void hideTitle(){
 
+//        webViewActivity.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                webViewActivity.setTitleVisibility(false);
+//            }
+//        });
+//        Message msg = handler.obtainMessage();
+//        msg.obj = "hideTitle";
+        handler.sendEmptyMessage(1);
+
     }
 
     @JavascriptInterface
     public void showTitle(){
+
+//        webViewActivity.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                webViewActivity.setTitleVisibility(true);
+//            }
+//        });
+        handler.sendEmptyMessage(2);
 
     }
 
