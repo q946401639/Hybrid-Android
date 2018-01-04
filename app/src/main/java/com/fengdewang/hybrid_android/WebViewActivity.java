@@ -1,5 +1,6 @@
 package com.fengdewang.hybrid_android;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -43,14 +44,32 @@ public class WebViewActivity extends AppCompatActivity {
     private List<String> resumeEventsList;
     private List<String> pauseEventsList;
 
+    private Boolean isFromScheme = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
 
         String pageUrl = null;
+
+        //scheme传参
+        Intent schemeIntent = getIntent();
+        String scheme = schemeIntent.getScheme();
+        String dataString = schemeIntent.getDataString();
+        Uri schemeUri = schemeIntent.getData();
+
+        if(schemeUri != null){
+            if(schemeUri.getHost().equals("openPage")){
+                isFromScheme = true;
+                pageUrl = schemeUri.getQueryParameter("url");
+            }
+        }
+
+
+        //activity intent url传参
         Bundle bundle = this.getIntent().getExtras();
-        if(bundle != null){
+        if(bundle != null && bundle.getString("url") != null){
             pageUrl = bundle.getString("url");
         }
         System.out.println(pageUrl);

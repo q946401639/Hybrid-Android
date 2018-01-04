@@ -38,4 +38,12 @@ public class WebViewActivityManager extends Application {
 
     }
 
+    public static int getActivityListSize(){
+        return list.size();
+    }
+
+    public static Activity getActivity(int i){
+        return list.get(i);
+    }
+
 }
