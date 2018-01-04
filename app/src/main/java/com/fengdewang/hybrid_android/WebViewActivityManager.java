@@ -12,18 +12,21 @@ import java.util.ListIterator;
 
 /**
  * Created by fengdewang on 2018/1/3.
+ * 作为单例 去记录webviewActivity的个数 和 堆栈情况，相当于ios中 root.viewControllers
  */
 
 public class WebViewActivityManager extends Application {
 
     private static List<Activity> list = new ArrayList<>();
 
+    //添加一个WebViewActivity的实例
     public static void addActivity(Activity activity){
 
         list.add(activity);
 
     }
 
+    //finish n 个WebViewActivity
     public static void finishActivity(int step){
 
         if (list != null) {
@@ -38,10 +41,12 @@ public class WebViewActivityManager extends Application {
 
     }
 
+    //获取当前WebViewActivity堆栈实例的个数
     public static int getActivityListSize(){
         return list.size();
     }
 
+    //获取堆栈中的某个WebViewActivity实例
     public static Activity getActivity(int i){
         return list.get(i);
     }

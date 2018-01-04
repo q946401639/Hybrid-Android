@@ -37,14 +37,17 @@ public class JSBridge extends Object{
         this.handler = handler;
     }
 
+    //获取uid test
     @JavascriptInterface
     public String getUID(){
         return "UID: 1234567890";
     }
 
+    //隐藏actionBar
     @JavascriptInterface
     public void hideTitle(){
 
+        //注释部分为耦合性较强的方式 去调用webViewActivity的方法
 //        webViewActivity.runOnUiThread(new Runnable() {
 //            @Override
 //            public void run() {
@@ -53,45 +56,53 @@ public class JSBridge extends Object{
 //        });
 //        Message msg = handler.obtainMessage();
 //        msg.obj = "hideTitle";
+        //UI主进程以外的地方 修改UI 需要 用handle机制去传递消息
         handler.sendEmptyMessage(1);
 
     }
 
+    //显示actionBar
     @JavascriptInterface
     public void showTitle(){
-
+        //注释部分为耦合性较强的方式 去调用webViewActivity的方法
 //        webViewActivity.runOnUiThread(new Runnable() {
 //            @Override
 //            public void run() {
 //                webViewActivity.setTitleVisibility(true);
 //            }
 //        });
+        //UI主进程以外的地方 修改UI 需要 用handle机制去传递消息
         handler.sendEmptyMessage(2);
 
     }
 
+    //添加resume 事件 （后台切回前台）
     @JavascriptInterface
     public void addResumeEvent(String resumeEvent){
         System.out.println("============add resume===========");
         webViewActivity.addResumeEvent(resumeEvent);
     }
 
+    //添加pause 事件 （前台切到后台）
     @JavascriptInterface
     public void addPauseEvent(String pauseEvent){
         System.out.println("============add pause===========");
         webViewActivity.addPauseEvent(pauseEvent);
     }
 
+    //打开页面 默认为打开本地demo页面
     @JavascriptInterface
     public void openPage(){
         webViewActivity.openPage();
     }
 
+    //打开新的webview页面
     @JavascriptInterface
     public void openPage(String pageUrl){
         webViewActivity.openPage(pageUrl);
     }
 
+    //pop一个webview页面
     @JavascriptInterface
     public void popPage(int step){
         webViewActivity.popPage(step);

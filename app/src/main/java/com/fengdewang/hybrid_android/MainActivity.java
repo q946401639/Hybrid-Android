@@ -24,12 +24,14 @@ public class MainActivity extends AppCompatActivity {
         gotoWebviewBtn = findViewById(R.id.gotoWebView);
         clearBtn = findViewById(R.id.clearBtn);
 
+        //绑定跳转到下一页的点击事件
         gotoWebviewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 System.out.println("跳转至webview的avtivity");
                 Toast.makeText(MainActivity.this, "跳转至WebView页面", Toast.LENGTH_LONG).show();
 
+                //intent 跳转
                 Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
 
 //                Bundle bundle = new Bundle();
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //清空浏览器缓存 （全局清空）
         clearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

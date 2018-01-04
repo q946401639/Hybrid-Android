@@ -12,8 +12,8 @@ import java.lang.ref.WeakReference;
 
 public class WebViewUIHandler extends Handler {
 
+    //添加WebViewActivity的弱引用 以防止内存泄露
     private final WeakReference<WebViewActivity> webViewActivityWeakReference;
-
     public WebViewUIHandler(WebViewActivity webViewActivity){
 
         this.webViewActivityWeakReference = new WeakReference<WebViewActivity>(webViewActivity);
@@ -26,6 +26,7 @@ public class WebViewUIHandler extends Handler {
 
         WebViewActivity webViewActivity = webViewActivityWeakReference.get();
 
+        //UI主进程以外的地方 修改UI 需要 用handle机制去传递消息
         switch (msg.what){
             case 1:
                 webViewActivity.setTitleVisibility(false); //隐藏title

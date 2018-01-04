@@ -45,24 +45,24 @@ public class WebViewActivity extends AppCompatActivity {
     private List<String> resumeEventsList;
     private List<String> pauseEventsList;
 
-    private Boolean isFromScheme = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
 
+        //要展示的html页面的url
         String pageUrl = null;
 
-        //scheme传参
+        //获取scheme传递过来的参数
         Intent schemeIntent = getIntent();
         String scheme = schemeIntent.getScheme();
         String dataString = schemeIntent.getDataString();
         Uri schemeUri = schemeIntent.getData();
 
+        //获取scheme上的url参数
         if(schemeUri != null){
             if(TextUtils.equals(schemeUri.getHost(), "openPage")){
-                isFromScheme = true;
                 pageUrl = schemeUri.getQueryParameter("url");
             }
         }
@@ -75,16 +75,20 @@ public class WebViewActivity extends AppCompatActivity {
         }
         System.out.println(pageUrl);
 
+        //自定义handler，用以在UI主进程以外的地方 去修改UI
         uiHandler = new WebViewUIHandler(WebViewActivity.this);
 
+        //获取actionBar
         actionBar = getSupportActionBar();
         initTitleBar();
 
+        //初始化加载进度条
         progressBar = findViewById(R.id.progressBar);
         progressBar.setAlpha(0);
 
         customWebView = findViewById(R.id.customWebView);
 
+        //设置webview
         WebSettings settings = customWebView.getSettings();
 
         //如果访问的页面中要与Javascript交互，则webview必须设置支持Javascript
@@ -188,8 +192,10 @@ public class WebViewActivity extends AppCompatActivity {
             }
         });
 
+        //对webview内的网页 进行事件拦截
         customWebView.setWebChromeClient(new WebChromeClient(){
 
+            //加载过程的钩子拦截  可用于进度条展示
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 //super.onProgressChanged(view, newProgress);
@@ -203,6 +209,7 @@ public class WebViewActivity extends AppCompatActivity {
 
             }
 
+            //html页面的title获取
             @Override
             public void onReceivedTitle(WebView view, String title) {
                 super.onReceivedTitle(view, title);
@@ -210,6 +217,7 @@ public class WebViewActivity extends AppCompatActivity {
                 actionBar.setTitle(title);
             }
 
+            //html中alert的拦截
             @Override
             public boolean onJsAlert(WebView view, String url, String message, final JsResult result) {
 
@@ -237,12 +245,14 @@ public class WebViewActivity extends AppCompatActivity {
         JSBridge jsbridge = new JSBridge(WebViewActivity.this, uiHandler);
         customWebView.addJavascriptInterface(jsbridge, "JSBridgeAndroid");
 
+        //如果没有 pageUrl 则默认打开本地demo测试页面
         if(pageUrl != null){
             customWebView.loadUrl(pageUrl);
         } else {
             customWebView.loadUrl("file:///android_asset/JSBridgeDemo.html");
         }
 
+        //在管理webview堆栈中 添加此实例
         WebViewActivityManager.addActivity(this);
 
     }
@@ -270,6 +280,12 @@ public class WebViewActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * 监听右下角返回键
+     * @param keyCode
+     * @param event
+     * @return
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
@@ -284,6 +300,11 @@ public class WebViewActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * 监听左上角返回键
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -298,6 +319,9 @@ public class WebViewActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Activity销毁的钩子
+     */
     @Override
     protected void onDestroy() {
 
@@ -310,6 +334,9 @@ public class WebViewActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    /**
+     * Activity暂停 或者 压入后台的钩子
+     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -331,6 +358,9 @@ public class WebViewActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Activity重新唤醒的钩子
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -352,6 +382,7 @@ public class WebViewActivity extends AppCompatActivity {
         }
     }
 
+    //设置 actionBar的显示隐藏
     public void setTitleVisibility(Boolean show){
 
         if(!show){
@@ -362,11 +393,13 @@ public class WebViewActivity extends AppCompatActivity {
 
     }
 
+    //初始化设置actionBar
     public void initTitleBar(){
         actionBar.setDisplayHomeAsUpEnabled(true); //是否在左侧返回区域显示返回箭头，默认不显示
         actionBar.setDisplayShowTitleEnabled(true); //是否在左侧返回区域显示左侧标题，默认显示APP名称   setTitle : 设置左侧标题的文本
     }
 
+    //添加resume事件
     public void addResumeEvent(String event){
         if(resumeEventsList == null){
             resumeEventsList = new ArrayList<String>();
@@ -376,6 +409,7 @@ public class WebViewActivity extends AppCompatActivity {
         System.out.println(resumeEventsList);
     }
 
+    //添加pause事件
     public void addPauseEvent(String event){
         if(pauseEventsList == null){
             pauseEventsList = new ArrayList<String>();
@@ -385,6 +419,7 @@ public class WebViewActivity extends AppCompatActivity {
         System.out.println(pauseEventsList);
     }
 
+    //打开demo页面
     public void openPage(){
 
         Intent intent = new Intent(WebViewActivity.this, WebViewActivity.class);
@@ -392,6 +427,7 @@ public class WebViewActivity extends AppCompatActivity {
 
     }
 
+    //打开指定url页面
     public void openPage(String pageUrl){
 
         Intent intent = new Intent(WebViewActivity.this, WebViewActivity.class);
@@ -404,6 +440,7 @@ public class WebViewActivity extends AppCompatActivity {
 
     }
 
+    //pop webview页面
     public void popPage(int step){
 
         WebViewActivityManager.finishActivity(step);
