@@ -1,7 +1,9 @@
 package com.fengdewang.hybrid_android;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Handler;
 import android.os.Message;
@@ -10,9 +12,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -20,6 +25,11 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 public class WebViewActivity extends AppCompatActivity {
 
@@ -30,10 +40,20 @@ public class WebViewActivity extends AppCompatActivity {
     private WebView customWebView;
     private ProgressBar progressBar;
 
+    private List<String> resumeEventsList;
+    private List<String> pauseEventsList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
+
+        String pageUrl = null;
+        Bundle bundle = this.getIntent().getExtras();
+        if(bundle != null){
+            pageUrl = bundle.getString("url");
+        }
+        System.out.println(pageUrl);
 
         uiHandler = new WebViewUIHandler(WebViewActivity.this);
 
@@ -82,15 +102,38 @@ public class WebViewActivity extends AppCompatActivity {
         //开启 Application Caches 功能
         settings.setAppCacheEnabled(true);
 
-        //原生webview load url 会直接跳转至系统浏览器，所有重新覆盖此跳转
+
+        // 修改ua使得web端正确判断
+        String ua = settings.getUserAgentString();
+        settings.setUserAgentString(ua + "; JSBridge_Android");
+
+
+        //原生webview load url 会直接跳转至系统浏览器，所以重新覆盖此跳转
         customWebView.setWebViewClient(new WebViewClient(){
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                //拦截自定义scheme
+                Uri uri = Uri.parse(url);
 
-                view.loadUrl(request.getUrl().toString());
+                if(uri.getScheme().equals("jsbridge")){
 
-                return true;
+                    WebViewActivity.this.customScheme(uri);
+
+                    return true;
+                } else if(uri.getScheme().equals("http") || uri.getScheme().equals("https") || uri.getScheme().equals("file")) {
+                    //原生webview load url 会直接跳转至系统浏览器，所有重新覆盖此跳转
+                    view.loadUrl(url);
+
+                    return false;
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+
+//                    startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                    return true;
+                }
+
             }
 
             @Override
@@ -98,6 +141,15 @@ public class WebViewActivity extends AppCompatActivity {
                 //super.onPageStarted(view, url, favicon);
                 //todo 开始加载网页 显示loading
                 System.out.println(url);
+
+                //拦截自定义scheme
+                Uri uri = Uri.parse(url);
+                if(uri.getScheme().equals("jsbridge")){
+
+                    WebViewActivity.this.customScheme(uri);
+
+                }
+
             }
 
             @Override
@@ -170,12 +222,40 @@ public class WebViewActivity extends AppCompatActivity {
         // 通过addJavascriptInterface()将Java对象映射到JS对象
         //参数1：Java对象名
         //参数2：Javascript对象名
-        JSBridge jsbridge = new JSBridge(uiHandler);
+        JSBridge jsbridge = new JSBridge(WebViewActivity.this, uiHandler);
         customWebView.addJavascriptInterface(jsbridge, "JSBridgeAndroid");
 
-        customWebView.loadUrl("file:///android_asset/JSBridgeDemo.html");
-        //customWebView.loadUrl("https://www.baidu.com");
+        if(pageUrl != null){
+            customWebView.loadUrl(pageUrl);
+        } else {
+            customWebView.loadUrl("file:///android_asset/JSBridgeDemo.html");
+        }
 
+        WebViewActivityManager.addActivity(this);
+
+    }
+
+    /**
+     * 自定义菜单 创建右上角刷新按钮
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.webview_action_bar, menu);
+        MenuItem reloadBtn = menu.findItem(R.id.reloadBtn);
+
+        reloadBtn.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                customWebView.reload();
+
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -223,6 +303,20 @@ public class WebViewActivity extends AppCompatActivity {
         super.onStop();
 
         customWebView.onPause();
+
+        if(pauseEventsList != null){
+
+            for(int i = 0; i < pauseEventsList.size(); i++){
+                System.out.println(pauseEventsList.get(i));
+                customWebView.evaluateJavascript("JSBridge.eventMap['" + pauseEventsList.get(i) + "']()", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String s) {
+                        System.out.println(s);
+                    }
+                });
+            }
+
+        }
     }
 
     @Override
@@ -230,6 +324,20 @@ public class WebViewActivity extends AppCompatActivity {
         super.onResume();
 
         customWebView.onResume();
+
+        if(resumeEventsList != null){
+
+            for(int i = 0; i < resumeEventsList.size(); i++){
+                System.out.println(resumeEventsList.get(i));
+                customWebView.evaluateJavascript("JSBridge.eventMap['" + resumeEventsList.get(i) + "']()", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String s) {
+                        System.out.println(s);
+                    }
+                });
+            }
+
+        }
     }
 
     public void setTitleVisibility(Boolean show){
@@ -242,12 +350,81 @@ public class WebViewActivity extends AppCompatActivity {
 
     }
 
-
     public void initTitleBar(){
         actionBar.setDisplayHomeAsUpEnabled(true); //是否在左侧返回区域显示返回箭头，默认不显示
         actionBar.setDisplayShowTitleEnabled(true); //是否在左侧返回区域显示左侧标题，默认显示APP名称   setTitle : 设置左侧标题的文本
+    }
+
+    public void addResumeEvent(String event){
+        if(resumeEventsList == null){
+            resumeEventsList = new ArrayList<String>();
+        }
+        resumeEventsList.add(event);
+        System.out.println("======================");
+        System.out.println(resumeEventsList);
+    }
+
+    public void addPauseEvent(String event){
+        if(pauseEventsList == null){
+            pauseEventsList = new ArrayList<String>();
+        }
+        pauseEventsList.add(event);
+        System.out.println("======================");
+        System.out.println(pauseEventsList);
+    }
+
+    public void openPage(){
+
+        Intent intent = new Intent(WebViewActivity.this, WebViewActivity.class);
+        startActivity(intent);
 
     }
 
+    public void openPage(String pageUrl){
+
+        Intent intent = new Intent(WebViewActivity.this, WebViewActivity.class);
+
+        Bundle bundle = new Bundle();
+        bundle.putString("url", pageUrl);
+        intent.putExtras(bundle);
+
+        startActivity(intent);
+
+    }
+
+    public void popPage(int step){
+
+        WebViewActivityManager.finishActivity(step);
+
+//        if(step == 1){
+//            finish();
+//        } else {
+//            System.out.println("关闭 " + step + "个webview");
+//        }
+
+    }
+
+
+    //自定义scheme拦截
+    public void customScheme(Uri uri){
+
+        if(uri.getAuthority().equals("openPage")){
+            HashMap<String, String> params = new HashMap<>();
+            Set<String> query = uri.getQueryParameterNames();
+
+            for(String key : query){
+                params.put(key, uri.getQueryParameter(key));
+            }
+
+            Intent intent = new Intent(WebViewActivity.this, WebViewActivity.class);
+
+            Bundle bundle = new Bundle();
+            bundle.putString("url", params.get("url"));
+            intent.putExtras(bundle);
+
+            startActivity(intent);
+        }
+
+    }
 
 }

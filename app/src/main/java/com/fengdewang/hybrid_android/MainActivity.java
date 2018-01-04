@@ -31,6 +31,11 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "跳转至WebView页面", Toast.LENGTH_LONG).show();
 
                 Intent intent = new Intent(MainActivity.this, WebViewActivity.class);
+
+//                Bundle bundle = new Bundle();
+//                bundle.putString("url", "http://www.baidu.com");
+//                intent.putExtras(bundle);
+
                 startActivity(intent);
 
             }

@@ -26,6 +26,10 @@
                 
     </head>
     <body>
+
+    <div id="temp"></div>
+    <div id="temp2"></div>
+
         <ul>
             
             <li id="J_GotoBaidu">跳转至百度</li>
@@ -42,11 +46,9 @@
             
             
         </ul>
-        <div id="temp"></div>
-        <div id="temp2"></div>
+
         
         <script>
-
 
         
         var JSBridge = {
@@ -69,9 +71,13 @@
             
             openPage: function(url){ //打开新的webview
                 var name = "openPage";
-                
                 try{
-                    window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, url: url });
+                    if(url){
+                        JSBridgeAndroid.openPage(url);
+                    } else {
+                        JSBridgeAndroid.openPage();
+                    }
+
                 }catch(e){
                     console.error(e);
                     location.href = url;
@@ -82,7 +88,7 @@
             popPage: function(n){ //关闭页面
                 var name = "popPage";
                 if(!n) { n = 1 }
-                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, step: n + ""});
+                JSBridgeAndroid.popPage(n);
             },
             
             hideTitle: function(){ //隐藏native title bar
@@ -97,16 +103,15 @@
             
             resume: function(callback){ //resume
                 var self = this;
-                
+
                 var name = "resume";
                 var uid = this.uid;
-                
+
                 this.eventMap[name + uid] = function(data){
                     callback && callback(data);
-                    delete self.eventMap[name + uid];
                 };
-                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, callback: name + uid });
-                
+                JSBridgeAndroid.addResumeEvent(name + uid);
+
                 this.uid = uid + 1;
             },
             
@@ -118,9 +123,8 @@
                 
                 this.eventMap[name + uid] = function(data){
                     callback && callback(data);
-                    delete self.eventMap[name + uid];
                 };
-                window.webkit.messageHandlers.JSBridge.postMessage({ nativeMethod:name, callback: name + uid });
+                JSBridgeAndroid.addPauseEvent(name + uid);
                 
                 this.uid = uid + 1;
             }

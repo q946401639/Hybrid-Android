@@ -32,6 +32,11 @@ public class JSBridge extends Object{
         this.handler = handler;
     }
 
+    public JSBridge(WebViewActivity webViewActivity, Handler handler){
+        this.webViewActivity = webViewActivity;
+        this.handler = handler;
+    }
+
     @JavascriptInterface
     public String getUID(){
         return "UID: 1234567890";
@@ -63,6 +68,33 @@ public class JSBridge extends Object{
 //        });
         handler.sendEmptyMessage(2);
 
+    }
+
+    @JavascriptInterface
+    public void addResumeEvent(String resumeEvent){
+        System.out.println("============add resume===========");
+        webViewActivity.addResumeEvent(resumeEvent);
+    }
+
+    @JavascriptInterface
+    public void addPauseEvent(String pauseEvent){
+        System.out.println("============add pause===========");
+        webViewActivity.addPauseEvent(pauseEvent);
+    }
+
+    @JavascriptInterface
+    public void openPage(){
+        webViewActivity.openPage();
+    }
+
+    @JavascriptInterface
+    public void openPage(String pageUrl){
+        webViewActivity.openPage(pageUrl);
+    }
+
+    @JavascriptInterface
+    public void popPage(int step){
+        webViewActivity.popPage(step);
     }
 
 }
