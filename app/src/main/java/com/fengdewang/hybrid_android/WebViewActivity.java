@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -60,7 +61,7 @@ public class WebViewActivity extends AppCompatActivity {
         Uri schemeUri = schemeIntent.getData();
 
         if(schemeUri != null){
-            if(schemeUri.getHost().equals("openPage")){
+            if(TextUtils.equals(schemeUri.getHost(), "openPage")){
                 isFromScheme = true;
                 pageUrl = schemeUri.getQueryParameter("url");
             }
@@ -160,14 +161,6 @@ public class WebViewActivity extends AppCompatActivity {
                 //super.onPageStarted(view, url, favicon);
                 //todo 开始加载网页 显示loading
                 System.out.println(url);
-
-                //拦截自定义scheme
-                Uri uri = Uri.parse(url);
-                if(uri.getScheme().equals("jsbridge")){
-
-                    WebViewActivity.this.customScheme(uri);
-
-                }
 
             }
 
@@ -427,7 +420,7 @@ public class WebViewActivity extends AppCompatActivity {
     //自定义scheme拦截
     public void customScheme(Uri uri){
 
-        if(uri.getAuthority().equals("openPage")){
+        if(TextUtils.equals(uri.getAuthority(), "openPage")){
             HashMap<String, String> params = new HashMap<>();
             Set<String> query = uri.getQueryParameterNames();
 
