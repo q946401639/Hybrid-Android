@@ -33,6 +33,7 @@
 - 自定义协议拦截示例
 
 ### 外部唤起app并跳转至指定页面
-- 1： {schemeName}://{host}/{path}?{query=xxx}
-- 2：intent://{host}/{path}?{query=xxx}#Intent;scheme={schemeName};package={packageName};end
+- 1： {schemeName}://{host}:{port}/{path}?{query=xxx}
+- 2：intent://{host}:{port}/{path}?{query=xxx}#Intent;scheme={schemeName};package={packageName};end
+- schemeName全部小写
 
