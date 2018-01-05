@@ -8,6 +8,7 @@
     - 自定义UA
     - 通过addJavascriptInterface 将JSBridge的方法注入到webview中，并挂载到window对象上
     - 提供native调用js的能力
+    - 提供吊起扫一扫view的功能（引入第三方包 com.journeyapps:zxing-android-embedded:3.2.0@aar）
 - SchemeWebViewActivity
     - 承接从外部scheme唤起过来的事件
     - 完全继承WebViewActivity
