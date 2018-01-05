@@ -27,5 +27,15 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
+    <Button
+        android:id="@+id/scanBtn"
+        android:layout_width="240dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="28dp"
+        android:text="扫一扫"
+        app:layout_constraintTop_toBottomOf="@+id/clearBtn"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
 
 </android.support.constraint.ConstraintLayout>

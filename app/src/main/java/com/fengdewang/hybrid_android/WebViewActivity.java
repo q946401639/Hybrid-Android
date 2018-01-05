@@ -64,6 +64,8 @@ public class WebViewActivity extends AppCompatActivity {
         if(schemeUri != null){
             if(TextUtils.equals(schemeUri.getHost(), "openPage")){
                 pageUrl = schemeUri.getQueryParameter("url");
+            } else if(TextUtils.equals(schemeUri.getHost(), "emptyPage")) {
+                finish();
             }
         }
 
