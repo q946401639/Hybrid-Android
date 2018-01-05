@@ -38,3 +38,6 @@
 - 2：intent://{host}:{port}/{path}?{query=xxx}#Intent;scheme={schemeName};package={packageName};end
 - schemeName全部小写
 
+
+### 开发文档参考
+- https://www.jianshu.com/p/345f4d8a5cfa（最全面总结 Android WebView与 JS 的交互方式 系列）
