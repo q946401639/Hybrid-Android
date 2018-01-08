@@ -27,6 +27,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,7 +132,7 @@ public class WebViewActivity extends AppCompatActivity {
 
         // 修改ua使得web端正确判断
         String ua = settings.getUserAgentString();
-        settings.setUserAgentString(ua + "; JSBridge_Android");
+        settings.setUserAgentString(ua + "; JSBridgeDemoUserAgent");
 
 
         //原生webview load url 会直接跳转至系统浏览器，所以重新覆盖此跳转
@@ -153,13 +154,12 @@ public class WebViewActivity extends AppCompatActivity {
 
                     return false;
                 } else {
+                    //todo 其余scheme处理操作
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(intent);
 
-//                    startActivity(new Intent(Intent.ACTION_VIEW, uri));
                     return true;
                 }
-
             }
 
             @Override
@@ -476,6 +476,20 @@ public class WebViewActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
+    }
+
+    //native运行js脚本
+    public void runJS(String method, String params){
+        if(params == null){
+            params = "";
+        }
+
+        customWebView.evaluateJavascript("JSBridge.eventMap['" + method + "']('"  + params + "')", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String s) {
+                System.out.println(s);
+            }
+        });
     }
 
 }

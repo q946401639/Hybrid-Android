@@ -5,7 +5,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.webkit.JavascriptInterface;
 
-
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -39,8 +40,14 @@ public class JSBridge extends Object{
 
     //获取uid test
     @JavascriptInterface
-    public String getUID(){
-        return "UID: 1234567890";
+    public void getDeviceId(final String method){
+        final String cb = method;
+        webViewActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                webViewActivity.runJS(cb, "uid: 1234567890");
+            }
+        });
     }
 
     //隐藏actionBar
@@ -98,14 +105,35 @@ public class JSBridge extends Object{
 
     //打开新的webview页面
     @JavascriptInterface
-    public void openPage(String pageUrl){
+    public void openPage(String params){
+
+        String pageUrl = null;
+
+        try {
+            JSONObject jsonObject = new JSONObject(params);
+            pageUrl = jsonObject.getString("url");
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
         webViewActivity.openPage(pageUrl);
     }
 
     //pop一个webview页面
     @JavascriptInterface
-    public void popPage(int step){
+    public void popPage(String params){
+        int step = 1;
+
+        try {
+            JSONObject jsonObject = new JSONObject(params);
+            step = jsonObject.getInt("step");
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
         webViewActivity.popPage(step);
     }
+
+
 
 }
