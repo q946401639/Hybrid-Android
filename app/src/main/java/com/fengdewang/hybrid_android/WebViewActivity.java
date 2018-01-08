@@ -154,9 +154,13 @@ public class WebViewActivity extends AppCompatActivity {
 
                     return false;
                 } else {
-                    //todo 其余scheme处理操作
-                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                    startActivity(intent);
+                    //添加try catch 防止未安装唤起app的情况下 本app crash掉
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        startActivity(intent);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
 
                     return true;
                 }

@@ -327,7 +327,7 @@
     var J_Resume = document.getElementById("J_Resume");
     J_Resume.onclick = function(){
 
-        JSBridge.resume(function(){
+        JSBridge.addResumeEvent(function(){
 
                              document.getElementById('temp').innerHTML = "app 被压入前台";
 
@@ -338,7 +338,7 @@
     var J_Pause = document.getElementById("J_Pause");
     J_Pause.onclick = function(){
 
-        JSBridge.pause(function(){
+        JSBridge.addPauseEvent(function(){
 
                         document.getElementById('temp2').innerHTML = "app 被压入后台";
 
