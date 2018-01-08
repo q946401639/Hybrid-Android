@@ -149,7 +149,7 @@ public class WebViewActivity extends AppCompatActivity {
 
                     return true;
                 } else if(uri.getScheme().equals("http") || uri.getScheme().equals("https") || uri.getScheme().equals("file")) {
-                    //原生webview load url 会直接跳转至系统浏览器，所有重新覆盖此跳转
+                    //原生webview load url 会直接跳转至系统浏览器，所以重新覆盖此跳转
                     view.loadUrl(url);
 
                     return false;
