@@ -145,25 +145,27 @@
             //事件队列
         },
         uid: 0,
-        deviceRouter: function(method, params, callback){
+        deviceRouter: function(method, params, callback, isHold){
             if(!this.isJSBridgeAPPDemo){ return console.log("isJSBridgeAPPDemo：false"); }
 
             if(this.device.type == IOS){
-                this.iosMethod(method, params, callback);
+                this.iosMethod(method, params, callback, isHold);
             } else if (this.device.type == ANDROID){
-                this.androidMethod(method, params, callback);
+                this.androidMethod(method, params, callback, isHold);
             } else {
                 console.error("请在native端使用此方法：" + method);
             }
         },
-        iosMethod: function(method, params, callback){ //ios通用方法
+        iosMethod: function(method, params, callback, isHold){ //ios通用方法
             var self = this;
             var uid = this.uid;
 
             if(callback){
                 this.eventMap[method + uid] = function(data){
                     callback && callback(data);
-                    delete self.eventMap[method + uid];
+                    if(!isHold){
+                        delete self.eventMap[method + uid];
+                    }
                 };
                 this.uid = uid + 1;
             }
@@ -186,7 +188,7 @@
             }
 
         },
-        androidMethod: function(method, params, callback){ //android通用方法
+        androidMethod: function(method, params, callback, isHold){ //android通用方法
 
             var self = this;
             var uid = this.uid;
@@ -194,7 +196,9 @@
             if(callback){
                 this.eventMap[method + uid] = function(data){
                     callback && callback(data);
-                    delete self.eventMap[method + uid];
+                    if(!isHold){
+                        delete self.eventMap[method + uid];
+                    }
                 };
                 this.uid = uid + 1;
             }
@@ -262,7 +266,7 @@
 
         addResumeEvent: function(callback){ //resume
 
-            this.deviceRouter("addResumeEvent", null, callback);
+            this.deviceRouter("addResumeEvent", null, callback, true);
 
             if(!this.isJSBridgeAPPDemo){
                 pageBackFromNextPage(callback);
@@ -274,7 +278,7 @@
 
         addPauseEvent: function(callback){ //pause
 
-            this.deviceRouter("addPauseEvent", null, callback);
+            this.deviceRouter("addPauseEvent", null, callback, true);
 
             if(!this.isJSBridgeAPPDemo){
                 pagePause(callback);
@@ -329,9 +333,9 @@
 
         JSBridge.addResumeEvent(function(){
 
-                             document.getElementById('temp').innerHTML = "app 被压入前台";
+             document.getElementById('temp').innerHTML = "app 被压入前台";
 
-                             });
+         });
 
     };
 
@@ -340,9 +344,9 @@
 
         JSBridge.addPauseEvent(function(){
 
-                        document.getElementById('temp2').innerHTML = "app 被压入后台";
+            document.getElementById('temp2').innerHTML = "app 被压入后台";
 
-                        });
+        });
 
     };
 
@@ -357,7 +361,11 @@
     J_BridgeScheme.onclick = function(){
 
         //ios接收到的scheme的值 始终为小写
-        location.href = "jsbridge://openPage?url=" + encodeURIComponent("https://www.baidu.com");
+        var body = document.getElementsByTagName("body")[0];
+        var iframe = document.createElement('iframe');
+        iframe.src = "jsbridge://openPage?url=" + encodeURIComponent("https://www.baidu.com");
+        body.appendChild(iframe);
+        // location.href = "jsbridge://openPage?url=" + encodeURIComponent("https://www.baidu.com");
 
     };
 
